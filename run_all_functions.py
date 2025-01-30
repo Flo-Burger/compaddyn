@@ -4,6 +4,7 @@ from scipy.io import loadmat, savemat
 
 # Own functions below
 from Method_Functions.run_LFA import run_LFA
+from Method_Functions.run_THOI import run_THOI
 
 def run_all_methods(data_ts, n_lag=10, exp_var_lim=99, output_dir='.'):
     # Run LFA
@@ -15,6 +16,14 @@ def run_all_methods(data_ts, n_lag=10, exp_var_lim=99, output_dir='.'):
     lmse, msd = run_LFA(data_ts, n_lag, exp_var_lim)
     savemat(os.path.join(LFA_result_path, "lmse_results.mat"), {"lmse": lmse})
     savemat(os.path.join(LFA_result_path, "msd_results.mat"), {"msd": msd})
+
+    # Run THOI 
+    # 
+    THOI_result_path = os.path.join(output_dir, "THOI")
+    if not os.path.exists(THOI_result_path): 
+        os.makedirs(THOI_result_path)
+
+    o = run_THOI(data_ts)
     
     print("All methods have been run and results saved to:", output_dir)
 

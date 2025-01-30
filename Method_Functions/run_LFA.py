@@ -29,23 +29,14 @@ def run_LFA(data_ts, n_lag=10, exp_var_lim=99):
 
         A_tilde = U.T @ Y @ V @ np.linalg.inv(S_mat)
 
-        # Replicate MATLAB indexing exactly:
-        # In MATLAB: X_plus is initially one row: X_plus(1,:) = X_svd(ss,:)
-        # We'll do the same in Python: X_plus[0,:] = X_svd[ss,:]
         for ss in range(n_time - n_lag):
             X_plus = np.zeros((n_lag+1, n_pcs))
             X_plus[0,:] = X_svd[ss,:]
             
             for ll in range(1, n_lag+1):
-                # MATLAB: X_plus(ll+1,:) = A_tilde * X_plus(ll,:).'
-                # Python: X_plus[ll,:] = A_tilde @ X_plus[ll-1,:]
                 X_plus[ll,:] = A_tilde @ X_plus[ll-1,:]
 
-                # MATLAB: lmse(ss,ll,subj) = mean((X_plus(ll,:) - X_svd(ss+ll-1,:)).^2);
-                # Here ll is 1-based in MATLAB, so X_plus(ll,:) in MATLAB is X_plus[ll-1,:] in Python.
                 lmse[ss, ll-1, subj] = np.mean((X_plus[ll-1,:] - X_svd[ss+ll-1,:])**2)
-
-                # msd uses X_svd(ss,:) and X_svd(ss+ll-1,:), same indexing in Python
                 msd[ss, ll-1, subj] = np.mean((X_svd[ss,:] - X_svd[ss+ll-1,:])**2)
 
     return lmse, msd
