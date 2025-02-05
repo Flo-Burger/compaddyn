@@ -7,3 +7,4 @@ Output/LFA/msd_results.mat
 Output/LFA/lmse_results.mat
 .DS_Store
 /Results
+/Output
