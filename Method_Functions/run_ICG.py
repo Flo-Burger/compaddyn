@@ -116,3 +116,180 @@ def run_ICG(data, apply_threshold = False, correlation_cutoff=0, use_absolute=Tr
 
     return all_activityICG, all_outPairID
 
+
+import math
+import numpy as np
+import torch
+
+def custom_triu_indices(n, offset=1, device="cpu"):
+    """
+    Creates row/col indices for the upper triangle (strictly above diagonal) of an (n x n) matrix.
+    Builds them on CPU, then moves to `device`, to avoid MPS not implementing `torch.triu_indices`.
+    """
+    row = torch.arange(n, device="cpu").view(-1,1).expand(n,n)
+    col = torch.arange(n, device="cpu").expand(n,n)
+    mask = (col - row) >= offset
+
+    row_indices = row[mask].to(device)
+    col_indices = col[mask].to(device)
+    return row_indices, col_indices
+
+def run_ICG_torch(
+    data,
+    correlation_cutoff=0.0,
+    use_absolute=True,
+    device=None
+):
+    """
+    Optimized Iterative Correlation-Based Grouping (ICG) using PyTorch & NumPy.
+
+    1) Uses NumPy to compute correlation quickly, then converts to PyTorch.
+    2) Uses a custom upper-triangle function to avoid MPS issues with `torch.triu_indices`.
+    3) Merges variables exceeding a correlation threshold (optional).
+
+    Parameters:
+      data (np.ndarray or torch.Tensor):
+          Shape: (neurons x time x subjects).
+      correlation_cutoff (float, optional):
+          Minimum correlation value required for merging (default = 0 -> no threshold).
+      use_absolute (bool, optional):
+          If True, threshold uses |corr| > correlation_cutoff.
+          If False, threshold uses corr > correlation_cutoff.
+      device (str or torch.device, optional):
+          "cuda", "mps", or "cpu". If None, auto-select:
+            - "cuda" if available,
+            - else "mps" if available,
+            - else "cpu".
+
+    Returns:
+      all_activityICG (list of list of torch.Tensor):
+          For each subject, a list of Tensors at each ICG level.
+      all_outPairID (list of list of torch.Tensor):
+          For each subject, a list of ID arrays at each ICG level.
+    """
+    # 1) Decide on device
+    if device is None:
+        if torch.cuda.is_available():
+            device = "cuda"
+        elif torch.backends.mps.is_available():
+            device = "mps"
+        else:
+            device = "cpu"
+
+    # Convert data to float32 on chosen device
+    if isinstance(data, torch.Tensor):
+        data_torch = data.to(device, dtype=torch.float32)
+    else:
+        data_torch = torch.tensor(data, dtype=torch.float32, device=device)
+
+    n_vars, n_time, n_subjs = data_torch.shape
+
+    all_activityICG = []
+    all_outPairID = []
+
+    for subj in range(n_subjs):
+        # Extract single subject's data -> shape: (n_vars, n_time)
+        subject_data = data_torch[:, :, subj].clone()
+        nData = subject_data.shape[0]
+
+        # If data is small, CPU might be faster
+        # (uncomment if you want to force CPU for small nData)
+        # if nData < 5000 and device != "cpu":
+        #     subject_data = subject_data.cpu()
+        #     dev_current = "cpu"
+        # else:
+        #     dev_current = device
+
+        # 2) Determine number of ICG steps
+        ICGsteps = int(math.ceil(math.log2(nData)))
+        if nData == 2**ICGsteps:
+            ICGsteps += 1
+
+        # Prepare storages
+        activityICG = [None] * ICGsteps
+        activityICG[0] = subject_data.clone()  # level 0 is raw data
+
+        outPairID = [None] * ICGsteps
+        outPairID[0] = torch.arange(nData, dtype=torch.long, device=device).unsqueeze(1)
+
+        # 3) Iterate ICG levels
+        for ICGlevel in tqdm(range(1, ICGsteps)):
+            ICGAct = activityICG[ICGlevel - 1]
+            nDataNow = ICGAct.shape[0]
+
+            # ----- A) Correlation via NumPy for speed -----
+            # Move to CPU as NumPy arrays
+            ICGAct_cpu = ICGAct.cpu().numpy()  # shape: (nDataNow, n_time)
+            rho_np = np.corrcoef(ICGAct_cpu)  # shape: (nDataNow, nDataNow)
+            np.fill_diagonal(rho_np, 0)
+
+            # Convert back to torch
+            rho = torch.tensor(rho_np, device=device, dtype=torch.float32)
+
+            # ----- B) Extract upper triangle indices -----
+            row_ind, col_ind = custom_triu_indices(nDataNow, offset=1, device=device)
+            C = rho[row_ind, col_ind]
+
+            # ----- C) Apply threshold -----
+            if use_absolute:
+                valid_mask = torch.abs(C) > correlation_cutoff
+            else:
+                valid_mask = C > correlation_cutoff
+
+            row_ind = row_ind[valid_mask]
+            col_ind = col_ind[valid_mask]
+            C = C[valid_mask]
+
+            # If no pairs exceed threshold, stop merging
+            if C.numel() == 0:
+                break
+
+            # ----- D) Sort correlations in descending order -----
+            sorted_idx = torch.argsort(C, descending=True)
+            row_sorted = row_ind[sorted_idx]
+            col_sorted = col_ind[sorted_idx]
+
+            # Prepare new data for merges
+            numPairsTotal = nDataNow // 2
+            outdat = torch.empty((numPairsTotal, ICGAct.shape[1]), device=device, dtype=torch.float32)
+
+            outPairID_dim = 2 ** ICGlevel
+            outPairID[ICGlevel] = -1 * torch.ones((numPairsTotal, outPairID_dim), device=device, dtype=torch.long)
+
+            used = torch.zeros(nDataNow, dtype=torch.bool, device=device)
+            pair_count = 0
+
+            prev_ids = outPairID[ICGlevel - 1]
+
+            # ----- E) Greedy merging -----
+            for i_sorted in range(len(row_sorted)):
+                r = row_sorted[i_sorted]
+                c = col_sorted[i_sorted]
+                if used[r] or used[c]:
+                    continue
+
+                # Merge data
+                outdat[pair_count] = ICGAct[r] + ICGAct[c]
+
+                # Merge original IDs
+                merged_ids = torch.cat([prev_ids[r], prev_ids[c]])
+                outPairID[ICGlevel][pair_count] = merged_ids
+
+                used[r] = True
+                used[c] = True
+                pair_count += 1
+                if pair_count >= numPairsTotal:
+                    break
+
+            # Save merged data at this level
+            activityICG[ICGlevel] = outdat
+
+        # Store results for the subject
+        all_activityICG.append(activityICG)
+        all_outPairID.append(outPairID)
+
+    return all_activityICG, all_outPairID
+
+
+
+

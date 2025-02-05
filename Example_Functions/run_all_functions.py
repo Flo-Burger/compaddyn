@@ -3,7 +3,7 @@ from scipy.io import loadmat, savemat
 
 # Own functions below
 from Method_Functions import run_LFA
-from Method_Functions import run_ICG
+from Method_Functions import run_ICG, run_ICG_torch
 
 def run_all_methods(data, output_dir='.'):
 
@@ -38,7 +38,10 @@ def run_all_methods(data, output_dir='.'):
     os.makedirs(ICG_result_path, exist_ok=True)
 
     # No parameters for ICG currently
-    all_activityICG, all_out_pairs = run_ICG(data)
+    # all_activityICG, all_out_pairs = run_ICG(data)
+
+    all_activityICG, all_out_pairs = run_ICG_torch(data, device= "mps")
+
 
     # Bit more complicated folder structure since ICG should be run per subject
     for subj in range(n_subjs):
