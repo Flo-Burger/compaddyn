@@ -107,7 +107,6 @@ class Controller:
         msg = f"Analysis completed!\nResults saved to: {self.output_dir}"
         self.show_results_page(msg)
 
-
 class PageOneWindow(tk.Toplevel):
     """Page 1: Select input file and output directory."""
     def __init__(self, controller):
@@ -153,7 +152,7 @@ class PageTwoWindow(tk.Toplevel):
         self.run_lfa_var = tk.BooleanVar(value=True)
         tk.Checkbutton(self, text="Run LFA Analysis", variable=self.run_lfa_var).pack(pady=5)
 
-        self.run_icg_var = tk.BooleanVar(value=False)
+        self.run_icg_var = tk.BooleanVar(value=True)
         tk.Checkbutton(self, text="Run ICG Analysis", variable=self.run_icg_var).pack(pady=5)
 
         tk.Button(self, text="Run Analysis", command=self.on_run_clicked).pack(pady=20)
@@ -176,7 +175,7 @@ class ResultsWindow(tk.Toplevel):
         self.controller = controller
         self.title("Analysis Results")
 
-        tk.Label(self, text=message, font=("Arial", 10), fg="blue").pack(pady=10)
+        tk.Label(self, text="All Methods were run Successfully", font=("Arial", 10), fg="blue").pack(pady=10)
         tk.Button(self, text="Back to Start", command=self.on_back_clicked).pack(pady=10)
         tk.Button(self, text="Exit", command=self.controller.root.destroy).pack(pady=10)
 
@@ -184,14 +183,7 @@ class ResultsWindow(tk.Toplevel):
         self.destroy()
         self.controller.page_one = PageOneWindow(self.controller)
 
-# ✅ Now callable as a function!
 def run_gui():
     """Launch the GUI."""
     app = Controller()
     app.launch_gui()
-
-
-# ✅ Still works as a script!
-if __name__ == "__main__":
-    run_gui()
-
