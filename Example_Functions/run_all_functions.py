@@ -3,9 +3,8 @@ from scipy.io import loadmat, savemat
 
 
 # Own functions below
-from Method_Functions.run_LFA import run_LFA
-from Method_Functions.run_THOI import run_THOI
-from Method_Functions.run_ICG import run_ICG
+from Method_Functions import run_LFA
+from Method_Functions import run_ICG
 
 def run_all_methods(data, output_dir='.'):
 
