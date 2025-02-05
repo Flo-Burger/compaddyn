@@ -60,7 +60,7 @@ def run_all_methods(data, output_dir='.'):
     print("All methods have been run and results saved to:", output_dir)
 
 # Load data from .mat
-mat_data = loadmat("/Users/22119216/Desktop/USYD_RA_2025/fMRI_like_data.mat")
+mat_data = loadmat("/Users/22119216/Desktop/USYD_RA_2025/Shine_Lab_Combined_Code/fMRI_like_data.mat")
 
 # Remove MATLAB-specific metadata keys (those starting with '__')
 filtered_keys = [key for key in mat_data.keys() if not key.startswith('__')]
@@ -78,4 +78,17 @@ output_dir = "/Users/22119216/Desktop/USYD_RA_2025/Shine_Lab_Combined_Code/Outpu
 if not os.path.exists(output_dir): 
     os.makedirs(output_dir)
 
-run_all_methods(data = data, output_dir= output_dir)
+import time
+
+# Start the timer
+start_time = time.time()
+
+# Run the function
+run_all_methods(data=data, output_dir=output_dir)
+
+# End the timer
+end_time = time.time()
+
+# Print elapsed time
+elapsed_time = end_time - start_time
+print(f"Execution Time: {elapsed_time:.4f} seconds")

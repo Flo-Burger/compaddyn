@@ -90,11 +90,11 @@ for ICGlevel = 2:ICGsteps
     for numPairCnt = 1:numPairsTotal
          
         %Text counter
-        if ~mod(numPairCnt,250)
-            [numPairCnt numPairsTotal]
-            100*numPairCnt/numPairsTotal
+        % if ~mod(numPairCnt,250)
+        %     [numPairCnt numPairsTotal];
+        %     100*numPairCnt/numPairsTotal;
 
-        end
+        % end
         
         %Grabbing data
         %top row index
@@ -144,34 +144,33 @@ end
 end
 
 
-% subject_idx = 1; % Select subject 1 (change this for other subjects)
-% single_subject_data = cort_ts1c(:,:,subject_idx);
+subject_idx = 1; % Select subject 1 (change this for other subjects)
+single_subject_data = fmri_data(:,:,subject_idx);
+% % % 
+% % % % Suppose your data is in a 2D matrix 'single_subject_data' (neurons x time).
+% % % % And your function is ICGLean_1(single_subject_data).
+% % % 
+tic;  % Start timer
+[activityICG, outPairID] = ICGLean_1(single_subject_data);
+elapsed_time = toc;  % End timer and capture elapsed seconds
+fprintf('MATLAB ICG completed in %.4f seconds.\n', elapsed_time);
+% % % 
+
+% [numNeurons, numTimepoints, numSubjects] = size(fmri_data);
 % 
-% % Suppose your data is in a 2D matrix 'single_subject_data' (neurons x time).
-% % And your function is ICGLean_1(single_subject_data).
+% % Initialize timing
+% tic;
+% activityICG_all = cell(1, numSubjects);
+% outPairID_all = cell(1, numSubjects);
 % 
-% tic;  % Start timer
-% [activityICG, outPairID] = ICGLean_1(single_subject_data);
-% elapsed_time = toc;  % End timer and capture elapsed seconds
+% % Run ICG for each subject
+% for subj = 1:numSubjects
+%     % fprintf('Running ICG for subject %d/%d...\n', subj, numSubjects);
 % 
-% fprintf('MATLAB ICG completed in %.4f seconds.\n', elapsed_time);
+%     single_subject_data = fmri_data(:, :, subj);
+%     [activityICG_all{subj}, outPairID_all{subj}] = ICGLean_1(single_subject_data);
+% end
 % 
-
-[numNeurons, numTimepoints, numSubjects] = size(cort_ts1c);
-
-% Initialize timing
-tic;
-activityICG_all = cell(1, numSubjects);
-outPairID_all = cell(1, numSubjects);
-
-% Run ICG for each subject
-for subj = 1:numSubjects
-    % fprintf('Running ICG for subject %d/%d...\n', subj, numSubjects);
-    
-    single_subject_data = cort_ts1c(:, :, subj);
-    [activityICG_all{subj}, outPairID_all{subj}] = ICGLean_1(single_subject_data);
-end
-
-matlab_time = toc;
-fprintf('MATLAB ICG completed for all %d subjects in %.4f seconds.\n', numSubjects, matlab_time);
-
+% matlab_time = toc;
+% fprintf('MATLAB ICG completed for all %d subjects in %.4f seconds.\n', numSubjects, matlab_time);
+% 
