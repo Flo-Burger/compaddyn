@@ -5,13 +5,14 @@
 # Does this make sense for a data reduction approach? Or what else do you use ICG for? 
 
 import numpy as np
+from tqdm import tqdm
 
-def run_ICG(data_ts):
+def run_ICG(data):
     """
     Iterative Correlation-Based Grouping (ICG) for multiple subjects.
 
     Parameters:
-      data_ts (np.ndarray):
+      data (np.ndarray):
           Neuronal timeseries data (neurons x time x subjects)
 
     Returns:
@@ -21,16 +22,18 @@ def run_ICG(data_ts):
           IDs of original neurons grouped at each level, for each subject.
     """
     # Extract shape information
-    n_vars, n_time, n_subjs = data_ts.shape
+    n_vars, n_time, n_subjs = data.shape
 
     # Storage for all subjects
     all_activityICG = []
     all_outPairID = []
 
+    print("FUUUCKKKKK")
+
     # Loop over subjects
     for subj in range(n_subjs):
         # Extract single subject's data (neurons x time)
-        allData = np.asarray(data_ts[:, :, subj], dtype=np.float64)
+        allData = np.asarray(data[:, :, subj], dtype=np.float64)
         nData = allData.shape[0]
 
         # Determine grouping steps
@@ -45,7 +48,7 @@ def run_ICG(data_ts):
         outPairID = [None] * ICGsteps
         outPairID[0] = np.arange(nData, dtype=np.int64).reshape(-1, 1)
 
-        for ICGlevel in range(1, ICGsteps):
+        for ICGlevel in tqdm(range(1, ICGsteps)):
             ICGAct = activityICG[ICGlevel - 1]
             nDataNow = ICGAct.shape[0]
 

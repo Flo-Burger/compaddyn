@@ -11,16 +11,16 @@ def run_all_methods(data, output_dir='.'):
 
     # Run LFA
     # Creating specific folder for LFA
+    print("Running LFA")
     LFA_result_path = os.path.join(output_dir, "LFA")
     if not os.path.exists(LFA_result_path): 
         os.makedirs(LFA_result_path)
 
-
     # Parameters for LFA can be changed here: 
-    lmse, msd = run_LFA(data, n_lag = 10, exp_var_lim = 99)
+    # lmse, msd = run_LFA(data, n_lag = 3, exp_var_lim = 0.95)
 
-    savemat(os.path.join(LFA_result_path, "lmse_results.mat"), {"lmse": lmse})
-    savemat(os.path.join(LFA_result_path, "msd_results.mat"), {"msd": msd})
+    # savemat(os.path.join(LFA_result_path, "lmse_results.mat"), {"lmse": lmse})
+    # savemat(os.path.join(LFA_result_path, "msd_results.mat"), {"msd": msd})
 
     # Run THOI 
     # 
@@ -32,6 +32,8 @@ def run_all_methods(data, output_dir='.'):
 
     # Run ICG
     # Creating Specific folder for ICG
+    print("Running ICG")
+
     ICG_result_path = os.path.join(output_dir, "ICG")
     os.makedirs(ICG_result_path, exist_ok=True)
 
@@ -57,23 +59,23 @@ def run_all_methods(data, output_dir='.'):
 
     print("All methods have been run and results saved to:", output_dir)
 
-# # Load data from .mat
-# mat_data = loadmat("/Users/22119216/Desktop/USYD_RA_2025/Shine_Lab_Combined_Code/Example_Data/cort_ts1c.mat")
+# Load data from .mat
+mat_data = loadmat("/Users/22119216/Desktop/USYD_RA_2025/fMRI_like_data.mat")
 
-# # Remove MATLAB-specific metadata keys (those starting with '__')
-# filtered_keys = [key for key in mat_data.keys() if not key.startswith('__')]
+# Remove MATLAB-specific metadata keys (those starting with '__')
+filtered_keys = [key for key in mat_data.keys() if not key.startswith('__')]
 
-# # Ensure there is exactly one key left
-# if len(filtered_keys) != 1:
-#     raise ValueError(f"Expected one data key/variable in .mat file, but found {len(filtered_keys)}: {filtered_keys}")
+# Ensure there is exactly one key left
+if len(filtered_keys) != 1:
+    raise ValueError(f"Expected one data key/variable in .mat file, but found {len(filtered_keys)}: {filtered_keys}")
 
-# # Extract the only key and assign its values to `data`
-# data = mat_data[filtered_keys[0]]
+# Extract the only key and assign its values to `data`
+data = mat_data[filtered_keys[0]]
 
-# # Add "/Output" to any path you have to let it create a new folder for saving results
-# output_dir = "/Users/22119216/Desktop/USYD_RA_2025/Shine_Lab_Combined_Code/Output"
+# Add "/Output" to any path you have to let it create a new folder for saving results
+output_dir = "/Users/22119216/Desktop/USYD_RA_2025/Shine_Lab_Combined_Code/Output"
 
-# if not os.path.exists(output_dir): 
-#     os.makedirs(output_dir)
+if not os.path.exists(output_dir): 
+    os.makedirs(output_dir)
 
-# run_all_methods(data = data, output_dir= output_dir)
+run_all_methods(data = data, output_dir= output_dir)
