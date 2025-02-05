@@ -1,0 +1,9 @@
+
+Example_Data/.DS_Store
+Example_Data/cort_ts1c.mat
+Method_Functions/.DS_Store
+Method_Functions/__pycache__/run_LFA.cpython-38.pyc
+Output/LFA/msd_results.mat
+Output/LFA/lmse_results.mat
+.DS_Store
+/Results

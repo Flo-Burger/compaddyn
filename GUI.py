@@ -3,7 +3,10 @@ from tkinter import filedialog, messagebox
 import os
 import numpy as np
 from scipy.io import loadmat, savemat
+
+# Existing imports
 from Method_Functions.run_LFA import run_LFA
+from Method_Functions.run_ICG import run_ICG  # <-- NEW IMPORT for your ICG function
 
 class Controller:
     """
@@ -11,27 +14,29 @@ class Controller:
     creates/destroys the pages (Toplevel windows).
     """
     def __init__(self):
-        # Create a hidden root
         self.root = tk.Tk()
-        self.root.withdraw()  # we won't use the root directly
+        self.root.withdraw()  # Hide the main root
 
         self.input_file = None
         self.output_dir = None
-        self.run_lfa = True  # just one method for demonstration
+        
+        # Flags for which analyses to run
+        self.run_lfa = True
+        self.run_icg = False  # <-- NEW flag for ICG
 
-        # Start by showing Page One
+        # Start with Page One
         self.page_one = PageOneWindow(self)
         self.root.mainloop()
 
     def show_page_two(self):
-        """Destroy PageOneWindow and move to PageTwoWindow."""
+        # Destroy PageOneWindow and create PageTwoWindow
         if hasattr(self, 'page_one') and self.page_one is not None:
             self.page_one.destroy()
             self.page_one = None
         self.page_two = PageTwoWindow(self)
 
     def show_results_page(self, message):
-        """Destroy PageTwoWindow and show the results."""
+        # Destroy PageTwoWindow and create ResultsWindow
         if hasattr(self, 'page_two') and self.page_two is not None:
             self.page_two.destroy()
             self.page_two = None
@@ -39,7 +44,8 @@ class Controller:
 
     def run_analysis(self):
         """
-        Perform the analysis logic, using run_LFA, then move to results page.
+        Perform the analysis logic, using run_LFA and run_ICG (optional),
+        then move to results page.
         """
         if not self.input_file or not os.path.isfile(self.input_file):
             messagebox.showerror("Error", "Invalid input file selected.")
@@ -48,52 +54,79 @@ class Controller:
             messagebox.showerror("Error", "Invalid output directory selected.")
             return
 
+        # Create the main "Results" folder
         self.output_dir = os.path.join(self.output_dir, "Results")
-
-        if not os.path.exists(self.output_dir): 
+        if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
 
         # Load data from .mat
         mat_data = loadmat(self.input_file)
-
-        # Remove MATLAB-specific metadata keys (those starting with '__')
         filtered_keys = [key for key in mat_data.keys() if not key.startswith('__')]
-
-        # Ensure there is exactly one key left
         if len(filtered_keys) != 1:
-            raise ValueError(f"Expected one data key, but found {len(filtered_keys)}: {filtered_keys}")
+            raise ValueError(f"Expected exactly 1 data key, found {len(filtered_keys)}: {filtered_keys}")
 
-        # Extract the only key and assign its values to `data`
         data_key = filtered_keys[0]
-        data = mat_data[data_key]
+        data = mat_data[data_key]  # shape: [variables, time, subjects]
 
-
-        # Run LFA (if checked)
+        # ==================
+        # 1) Run LFA (if checked)
+        # ==================
         if self.run_lfa:
-            # Add all parameters here? Or within the functions itself? Probably functions itself but more obvious to change if here
-            # Both I'd say? Depends on the size of parameters but should be fine as long as the names are specific and simple
-            n_lag_LFA = 3
-            exp_var_lim_LFA = 0.95
 
             LFA_result_path = os.path.join(self.output_dir, "LFA")
-            if not os.path.exists(LFA_result_path): 
+            if not os.path.exists(LFA_result_path):
                 os.makedirs(LFA_result_path)
 
-            lmse, msd = run_LFA(data, n_lag_LFA, exp_var_lim_LFA)
+            lmse, msd = run_LFA(data, n_lag = 3, exp_var_lim = 0.95)
 
-            # Save to the output directory
+            # Save LMSE and MSD
             lmse_path = os.path.join(LFA_result_path, "lmse_results.mat")
             msd_path = os.path.join(LFA_result_path, "msd_results.mat")
             savemat(lmse_path, {"lmse": lmse})
             savemat(msd_path, {"msd": msd})
 
-        # Show results
+        # ==================
+        # 2) Run ICG (if checked)
+        # ==================
+        if self.run_icg:
+            # Call your multi-subject ICG function. 
+            # It returns: all_activityICG, all_outPairID
+            # shape: each is a list of length `n_subjs`
+            ICG_result_path = os.path.join(self.output_dir, "ICG")
+            if not os.path.exists(ICG_result_path):
+                os.makedirs(ICG_result_path)
+
+            all_activityICG, all_outPairID = run_ICG(data)
+
+            # Now save them subject-by-subject
+            n_vars, n_time, n_subjs = data.shape
+            for subj in range(n_subjs):
+                subj_folder = os.path.join(ICG_result_path, f"Subject_{subj+1}")
+                os.makedirs(subj_folder, exist_ok=True)
+
+                subj_activity = all_activityICG[subj]
+                subj_pairs = all_outPairID[subj]
+
+                # subj_activity and subj_pairs are both lists of length ICGsteps
+                for lvl, lvl_activity in enumerate(subj_activity):
+                    if lvl_activity is not None:
+                        savemat(
+                            os.path.join(subj_folder, f"activity_level_{lvl+1}.mat"),
+                            {f"activity_{lvl+1}": lvl_activity}
+                        )
+                for lvl, lvl_pairs in enumerate(subj_pairs):
+                    if lvl_pairs is not None:
+                        savemat(
+                            os.path.join(subj_folder, f"pairs_level_{lvl+1}.mat"),
+                            {f"pairs_{lvl+1}": lvl_pairs}
+                        )
+
+        # Done! Show results
         msg = (
             "Analysis completed successfully!\n"
             f"Results saved to:\n{self.output_dir}"
         )
         self.show_results_page(msg)
-
 
 class PageOneWindow(tk.Toplevel):
     """
@@ -144,7 +177,7 @@ class PageOneWindow(tk.Toplevel):
 
 class PageTwoWindow(tk.Toplevel):
     """
-    Step 2: Select analysis methods (currently just Run LFA) and run analysis.
+    Step 2: Select analysis methods and run analysis.
     """
     def __init__(self, controller):
         super().__init__()
@@ -154,10 +187,15 @@ class PageTwoWindow(tk.Toplevel):
         label = tk.Label(self, text="Select Analysis Methods", font=("Arial", 14))
         label.pack(pady=10, padx=10)
 
-        # Single checkbutton for run_LFA
+        # Checkbutton for run_LFA
         self.run_lfa_var = tk.BooleanVar(value=True)
         cb_run_lfa = tk.Checkbutton(self, text="Run LFA Analysis", variable=self.run_lfa_var)
         cb_run_lfa.pack(pady=5)
+
+        # Checkbutton for run_ICG
+        self.run_icg_var = tk.BooleanVar(value=True)
+        cb_run_icg = tk.Checkbutton(self, text="Run ICG Analysis", variable=self.run_icg_var)
+        cb_run_icg.pack(pady=5)
 
         run_btn = tk.Button(self, text="Run Analysis", command=self.on_run_clicked)
         run_btn.pack(pady=20)
@@ -166,8 +204,11 @@ class PageTwoWindow(tk.Toplevel):
         back_btn.pack(pady=10)
 
     def on_run_clicked(self):
-        # Update the controller with the checkbutton state
+        # Update the controller with checkbutton states
         self.controller.run_lfa = self.run_lfa_var.get()
+        self.controller.run_icg = self.run_icg_var.get()
+
+        # Execute analysis
         self.controller.run_analysis()
 
     def on_back_clicked(self):
@@ -179,7 +220,7 @@ class PageTwoWindow(tk.Toplevel):
 
 class ResultsWindow(tk.Toplevel):
     """
-    Results page: Show success message and allow going back or exiting.
+    Results page: Show success message and allow going back or exit.
     """
     def __init__(self, controller, message):
         super().__init__()
