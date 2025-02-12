@@ -9,13 +9,6 @@ from Method_Functions import run_LFA
 from Method_Functions import run_ICG  
 from Method_Functions import run_fft_per_area, run_fft_global
 
-import sys
-import _tkinter
-print("Python executable:", sys.executable)
-print("Tcl version:", _tkinter.TCL_VERSION)
-print("Tk version:", _tkinter.TK_VERSION)
-
-
 class Controller:
     def __init__(self):
         self.root = tk.Tk()

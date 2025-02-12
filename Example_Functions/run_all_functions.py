@@ -103,36 +103,36 @@ def run_all_methods(data, output_dir='.', overwrite=True):
     
     print("All methods have been run and results saved to:", output_dir)
 
-# Load data from .mat
-mat_data = loadmat("/Users/22119216/Desktop/USYD_RA_2025/Shine_Lab_Combined_Code/tests/cort_ts1c_short.mat")
+# # Load data from .mat
+# mat_data = loadmat("/Users/22119216/Desktop/USYD_RA_2025/Shine_Lab_Combined_Code/tests/cort_ts1c_short.mat")
 
-# Remove MATLAB-specific metadata keys (those starting with '__')
-filtered_keys = [key for key in mat_data.keys() if not key.startswith('__')]
+# # Remove MATLAB-specific metadata keys (those starting with '__')
+# filtered_keys = [key for key in mat_data.keys() if not key.startswith('__')]
 
-# Ensure there is exactly one key left
-if len(filtered_keys) != 1:
-    raise ValueError(f"Expected one data key/variable in .mat file, but found {len(filtered_keys)}: {filtered_keys}")
+# # Ensure there is exactly one key left
+# if len(filtered_keys) != 1:
+#     raise ValueError(f"Expected one data key/variable in .mat file, but found {len(filtered_keys)}: {filtered_keys}")
 
-# Extract the only key and assign its values to `data`
-data = mat_data[filtered_keys[0]]
+# # Extract the only key and assign its values to `data`
+# data = mat_data[filtered_keys[0]]
 
-# Add "/Output" to any path you have to let it create a new folder for saving results
-output_dir = "/Users/22119216/Desktop/USYD_RA_2025/Shine_Lab_Combined_Code/Output"
+# # Add "/Output" to any path you have to let it create a new folder for saving results
+# output_dir = "/Users/22119216/Desktop/USYD_RA_2025/Shine_Lab_Combined_Code/Output"
 
-if not os.path.exists(output_dir): 
-    os.makedirs(output_dir)
+# if not os.path.exists(output_dir): 
+#     os.makedirs(output_dir)
 
-import time
+# import time
 
-# Start the timer
-start_time = time.time()
+# # Start the timer
+# start_time = time.time()
 
-# Run the function
-run_all_methods(data=data, output_dir=output_dir)
+# # Run the function
+# run_all_methods(data=data, output_dir=output_dir)
 
-# End the timer
-end_time = time.time()
+# # End the timer
+# end_time = time.time()
 
-# Print elapsed time
-elapsed_time = end_time - start_time
-print(f"Execution Time: {elapsed_time:.4f} seconds")
+# # Print elapsed time
+# elapsed_time = end_time - start_time
+# print(f"Execution Time: {elapsed_time:.4f} seconds")
