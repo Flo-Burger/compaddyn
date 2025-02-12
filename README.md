@@ -10,4 +10,6 @@ Not a great name, change the name to something better?
 
 ## Tests
 
+The test below checks if the monthly test works.
+
 ![Test Status](https://github.com/Flo2306/Shine_Lab_Combined_Code/actions/workflows/test.yml/badge.svg)
