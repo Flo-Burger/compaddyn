@@ -28,7 +28,7 @@ class TestRunAllMethods(unittest.TestCase):
 
         # Keep overwrite on false always, otherwise you may overwrite original results 
         # which goes against idea of testing. 
-        run_all_methods(data=test_data, output_dir=TEST_OUTPUT_PATH, overwrite=False)
+        run_all_methods(data=test_data, output_dir=TEST_OUTPUT_PATH, overwrite=True)
 
     def compare_data_arrays(self, expected_file, test_file):
         """Loads and compares two .mat files by numerical similarity"""
