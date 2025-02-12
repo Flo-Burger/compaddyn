@@ -21,7 +21,7 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install -r requirements.txt  # Ensure you have a requirements.txt file with necessary libraries
-          pip install scipy numpy unittest
+          pip install scipy numpy
 
       - name: Run Unit Tests
         id: test
