@@ -6,3 +6,6 @@ Not a great name, change the name to something better?
 - Linear Discriminant Analysis (LDA) 
 
 - Iterative Correlation-Based Grouping (ICG)
+
+
+![Test Status](https://github.com/yourusername/yourrepo/actions/workflows/test.yml/badge.svg)
