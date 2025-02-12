@@ -13,8 +13,7 @@ setup(
     install_requires=[
         "numpy",
         "scipy",
-        "matplotlib", 
-        "unittest"
+        "matplotlib"
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
