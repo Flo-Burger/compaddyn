@@ -28,7 +28,7 @@ jobs:
         run: |
           python -m unittest discover tests  
 
-      - name: Install Package
+      - name: Check Package Installation
         run: |
           pip install .  
 
