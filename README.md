@@ -7,7 +7,7 @@ Not a great name, change the name to something better?
 
 - Iterative Correlation-Based Grouping (ICG)
 
-- Fast Fourier Transform (per subject and per row)
+- Fast Fourier Transform (FFT, per subject and per row)
 
 
 ## Tests
