@@ -187,3 +187,4 @@ def run_gui():
     """Launch the GUI."""
     app = Controller()
     app.launch_gui()
+
