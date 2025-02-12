@@ -8,4 +8,4 @@ Not a great name, change the name to something better?
 - Iterative Correlation-Based Grouping (ICG)
 
 
-![Test Status](https://github.com/yourusername/yourrepo/actions/workflows/test.yml/badge.svg)
+![Test Status](https://github.com/Flo2306/Shine_Lab_Combined_Code/actions/workflows/test.yml/badge.svg)
