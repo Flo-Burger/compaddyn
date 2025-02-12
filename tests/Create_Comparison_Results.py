@@ -1,13 +1,12 @@
 import os
 import numpy as np
 from scipy.io import loadmat, savemat
-from Example_Functions import run_all_methods  # Adjust if needed
+from Example_Functions import run_all_methods  
 
 # Define paths
-TEST_DATA_PATH = "/Users/22119216/Desktop/USYD_RA_2025/Shine_Lab_Combined_Code/tests/cort_ts1c_short.mat"  # Ensure this exists
-EXPECTED_RESULTS_PATH = "tests/expected_results/"  # Where we store the expected outputs
+TEST_DATA_PATH = "/Users/22119216/Desktop/USYD_RA_2025/Shine_Lab_Combined_Code/tests/cort_ts1c_short.mat"  
+EXPECTED_RESULTS_PATH = "tests/expected_results/"  
 
-# Create expected results directory if not exists
 os.makedirs(EXPECTED_RESULTS_PATH, exist_ok=True)
 
 # Load test data
@@ -19,6 +18,5 @@ if len(filtered_keys) != 1:
 test_data = mat_data[filtered_keys[0]]
 
 # Run the function on test data
-print("Generating expected results...")
 run_all_methods(data=test_data, output_dir=EXPECTED_RESULTS_PATH, overwrite=False)
 
