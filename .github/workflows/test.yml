@@ -29,7 +29,7 @@ jobs:
           python -m unittest discover tests  
 
       - name: Send Email on Failure
-        # if: failure() 
+        if: failure() 
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com  
@@ -38,6 +38,9 @@ jobs:
           password: ${{ secrets.EMAIL_PASSWORD }}  
           subject: "🔥 This Test Suite is a Dumpster Fire 🔥"
           body: |
+
+            G'day legend, 
+            
             Annoyingly, the scheduled test run for the Shine Lab Code has failed. 
 
             Please check the logs for details, likely an issue with updated modules (e.g. numpy).
@@ -45,7 +48,11 @@ jobs:
             I'd also recommend to double check all results from the last month 
             depending on what the error is.
         
-            If you are stuck, reach out to me (Florian Burger), you better get me a coffee:)
+            If you are stuck, reach out to me but then you better get me a coffee:)
+
+            Good luck, 
+
+            Florian Burger
 
             Repository: ${{ github.repository }}
             Run ID: ${{ github.run_id }}
