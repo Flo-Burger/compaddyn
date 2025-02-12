@@ -1,0 +1,43 @@
+name: Monthly Test Run
+
+on:
+  schedule:
+    - cron: "0 0 1 * *"  # Runs at midnight (UTC) on the 1st of every month
+  workflow_dispatch:  # Allows manual triggering of tests if needed
+
+jobs:
+  test:
+    runs-on: ubuntu-latest  # Use an Ubuntu runner
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'  # Use a suitable Python version
+
+      - name: Install Dependencies
+        run: |
+          pip install -r requirements.txt  # Ensure you have a requirements.txt file with necessary libraries
+          pip install scipy numpy unittest
+
+      - name: Run Unit Tests
+        id: test
+        run: |
+          python -m unittest discover tests  # Runs all tests inside "tests" folder
+
+      - name: Send Email on Failure
+        if: failure()  # Only runs if the test step fails
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com  # Change to your SMTP provider
+          server_port: 587
+          username: ${{ secrets.EMAIL_ACCOUNT }}  # Your GitHub Secret for email username
+          password: ${{ secrets.EMAIL_PASSWORD }}  # Your GitHub Secret for email password
+          subject: "GitHub Actions Test Failed 🚨"
+          body: "The scheduled test run has failed. Please check the logs for details."
+          to: fburger20@gmx.de  # Change to your email
+          from: "GitHub Actions <your_email@example.com>"
+
