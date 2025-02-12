@@ -37,7 +37,17 @@ jobs:
           username: ${{ secrets.EMAIL_ACCOUNT }}  
           password: ${{ secrets.EMAIL_PASSWORD }}  
           subject: "GitHub Actions Test Failed 🚨"
-          body: "The scheduled test run has failed. Please check the logs for details."
+          body: |
+            The scheduled test run for the Shine Lab Code has failed. 
+
+            Please check the logs for details.
+
+            If you are stuck, send me an email at fburger20@gmx.de
+
+            Repository: ${{ github.repository }}
+            Run ID: ${{ github.run_id }}
+            Run URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+ 
           to: fburger20@gmx.de  
           from: "GitHub Actions <your_email@example.com>"
 
