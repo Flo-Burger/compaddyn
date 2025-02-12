@@ -28,6 +28,10 @@ jobs:
         run: |
           python -m unittest discover tests  
 
+      - name: Install Package
+        run: |
+          pip install .  
+
       - name: Send Email on Failure
         if: failure() 
         uses: dawidd6/action-send-mail@v3
