@@ -36,13 +36,16 @@ jobs:
           server_port: 587
           username: ${{ secrets.EMAIL_ACCOUNT }}  
           password: ${{ secrets.EMAIL_PASSWORD }}  
-          subject: "GitHub Actions Test Failed 🚨"
+          subject: "🔥🚀 Oops! GitHub Actions Faceplanted! 🚀🔥"
           body: |
-            The scheduled test run for the Shine Lab Code has failed. 
+            Annoyingly, the scheduled test run for the Shine Lab Code has failed. 
 
-            Please check the logs for details.
+            Please check the logs for details, likely an issue with updated modules (e.g. numpy).
 
-            If you are stuck, reach out to me (Florian Burger)
+            I'd also recommend to double check all results from the last month 
+            depending on what the error is.
+        
+            If you are stuck, reach out to me (Florian Burger), you better get me a coffee:)
 
             Repository: ${{ github.repository }}
             Run ID: ${{ github.run_id }}
