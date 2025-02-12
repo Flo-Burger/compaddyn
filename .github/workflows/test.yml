@@ -42,7 +42,7 @@ jobs:
 
             Please check the logs for details.
 
-            If you are stuck, send me an email at fburger20@gmx.de
+            If you are stuck, reach out to me (Florian Burger)
 
             Repository: ${{ github.repository }}
             Run ID: ${{ github.run_id }}
