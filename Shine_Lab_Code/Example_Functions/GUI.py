@@ -250,4 +250,4 @@ def run_gui():
     app = Controller()
     app.launch_gui()
 
-run_gui()
+
