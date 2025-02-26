@@ -3,9 +3,9 @@ from scipy.io import loadmat, savemat
 import matplotlib.pyplot as plt
 
 # Own functions below
-from Method_Functions import run_LFA
-from Method_Functions import run_ICG, run_ICG_torch
-from Method_Functions import run_fft_global, run_fft_per_area
+from ..Method_Functions import run_LFA
+from ..Method_Functions import run_ICG, run_ICG_torch
+from ..Method_Functions import run_fft_global, run_fft_per_area
 
 def run_all_methods(data, output_dir='.', overwrite=True):
 
