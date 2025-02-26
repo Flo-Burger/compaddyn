@@ -5,9 +5,9 @@ import numpy as np
 from scipy.io import loadmat, savemat
 
 # Import analysis functions
-from Method_Functions import run_LFA
-from Method_Functions import run_ICG  
-from Method_Functions import run_fft_per_area, run_fft_global
+from ..Method_Functions import run_LFA
+from ..Method_Functions import run_ICG  
+from ..Method_Functions import run_fft_per_area, run_fft_global
 
 class Controller:
     def __init__(self):
