@@ -7,7 +7,11 @@ Not a great name, change the name to something better?
 
 - Iterative Correlation-Based Grouping (ICG)
 
+- Fast Fourier Transform (FFT, per subject and per row)
+
 
 ## Tests
+
+The test below checks if the monthly test works.
 
 ![Test Status](https://github.com/Flo2306/Shine_Lab_Combined_Code/actions/workflows/test.yml/badge.svg)
