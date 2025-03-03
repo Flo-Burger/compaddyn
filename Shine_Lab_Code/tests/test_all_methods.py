@@ -10,6 +10,8 @@ TEST_DIR = os.path.dirname(__file__)  # This will point to the "tests/" director
 # PROJECT_ROOT = os.path.abspath(os.path.join(TEST_DIR, ".."))
 TEST_DATA_PATH = os.path.join(TEST_DIR, "tests", "cort_ts1c_short.mat")
 
+TEST_DATA_PATH = "Shine_Lab_Code/tests/cort_ts1c_short.mat"
+
 EXPECTED_RESULTS_PATH = os.path.join(TEST_DIR, "expected_results")
 TEST_OUTPUT_PATH = os.path.join(TEST_DIR, "test_output")
 
