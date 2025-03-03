@@ -251,3 +251,4 @@ def run_gui():
     app.launch_gui()
 
 
+run_gui()
