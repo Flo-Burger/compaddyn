@@ -8,7 +8,9 @@ from ..Example_Functions import run_all_methods  # Adjust if needed
 # Define paths relative to the test script location
 TEST_DIR = os.path.dirname(__file__)  # This will point to the "tests/" directory
 
-TEST_DATA_PATH = os.path.join(TEST_DIR, "cort_ts1c_short.mat")
+PROJECT_ROOT = os.path.abspath(os.path.join(TEST_DIR, ".."))
+TEST_DATA_PATH = os.path.join(PROJECT_ROOT, "Shine_Lab_Code", "tests", "cort_ts1c_short.mat")
+
 EXPECTED_RESULTS_PATH = os.path.join(TEST_DIR, "expected_results")
 TEST_OUTPUT_PATH = os.path.join(TEST_DIR, "test_output")
                                 
