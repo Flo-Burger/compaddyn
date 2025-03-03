@@ -7,19 +7,15 @@ from ..Example_Functions import run_all_methods  # Adjust if needed
 # Get the base directory (where this script is located)
 # Define paths relative to the test script location
 TEST_DIR = os.path.dirname(__file__)  # This will point to the "tests/" directory
-# PROJECT_ROOT = os.path.abspath(os.path.join(TEST_DIR, ".."))
-TEST_DATA_PATH = os.path.join(TEST_DIR, "tests", "cort_ts1c_short.mat")
 
-TEST_DATA_PATH = "Shine_Lab_Code/tests/cort_ts1c_short.mat"
+PROJECT_ROOT = os.path.abspath(os.path.join(TEST_DIR, "..", ".."))
+TEST_DATA_PATH = os.path.join(PROJECT_ROOT, "Shine_Lab_Code", "tests", "cort_ts1c_short.mat")
+
+print("[DEBUG] TEST_DATA_PATH:", TEST_DATA_PATH)  # Debug print
 
 EXPECTED_RESULTS_PATH = os.path.join(TEST_DIR, "expected_results")
 TEST_OUTPUT_PATH = os.path.join(TEST_DIR, "test_output")
-
-import os
-
-print("[DEBUG] Full path to this script:", os.path.abspath(__file__))
-print("[DEBUG] Current working directory:", os.getcwd())
-                                
+             
 # Tolerance for comparison
 ABSOLUTE_TOLERANCE = 1e-5  # Change if needed
 
