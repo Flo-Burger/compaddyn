@@ -26,6 +26,7 @@ jobs:
       - name: Run Unit Tests
         id: test
         run: |
+          python -m Shine_Lab_Code.tests.test_all_methods
           python -m unittest discover -s ./Shine_Lab_Code/tests -t ./Shine_Lab_Code
 
       - name: Check Package Installation
