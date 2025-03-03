@@ -2,7 +2,7 @@ import os
 import unittest
 import numpy as np
 from scipy.io import loadmat
-from Example_Functions import run_all_methods  # Adjust if needed
+from ..Example_Functions import run_all_methods  # Adjust if needed
 
 # Get the base directory (where this script is located)
 # Define paths relative to the test script location
