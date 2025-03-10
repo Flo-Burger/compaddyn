@@ -2,9 +2,9 @@ import numpy as np
 from scipy.io import savemat
 
 # Let's simulate 90 ROIs (brain regions), 300 timepoints, 10 subjects
-num_rois = 16384
-num_timepoints = 16384
-num_subjects = 1
+num_rois = 1000
+num_timepoints = 1000
+num_subjects = 5
 
 # Generate random data (here we use a normal distribution)
 # shape: (num_rois, num_timepoints, num_subjects)

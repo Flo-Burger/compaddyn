@@ -251,5 +251,10 @@ def run_gui():
     app.launch_gui()
 
 if __name__ == "__main__":
+    import sys
+    from pathlib import Path
+    # Add parent directory to sys.path for relative imports to work
+    sys.path.append(str(Path(__file__).resolve().parent.parent))
+    # Now relative imports will work!
     run_gui()
 
