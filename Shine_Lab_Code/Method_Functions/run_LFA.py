@@ -30,6 +30,8 @@ def run_LFA(data_ts, n_lag=10, exp_var_lim=99):
         lmse (np.ndarray): Linear MSE (time - lag) x lag x subjects
         msd (np.ndarray): Mean squared displacement over time
     """
+
+    # Get dimensions
     n_vars, n_time, n_subjs = data_ts.shape
 
     # Preallocate output arrays
@@ -67,7 +69,7 @@ def run_LFA(data_ts, n_lag=10, exp_var_lim=99):
         X_svd = V @ S_mat  # Compressed representation
 
         # Step 3: Estimate linear dynamics A_tilde
-        A_tilde = U.T @ Y @ V @ np.linalg.inv(S_mat)
+        A_tilde = U.T @ Y @ V @ np.linalg.pinv(S_mat, rcond=1e-15)
 
         # Step 4: Forecast future activity and evaluate LMSE and MSD
         for ss in range(n_time - n_lag):

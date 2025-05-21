@@ -5,29 +5,43 @@ import numpy as np
 from scipy.io import loadmat, savemat
 import matplotlib.pyplot as plt
 
+
+# Remove this, just now for the example
+import warnings
+warnings.filterwarnings("ignore")
+
+
 # Import analysis functions
 from Shine_Lab_Code.Method_Functions import run_LFA
 from Shine_Lab_Code.Method_Functions import run_ICG
 from Shine_Lab_Code.Method_Functions import run_fft_global, run_fft_per_area
 from Shine_Lab_Code.Method_Functions import run_Energy_Landscape  
 from Shine_Lab_Code.Method_Functions import run_LFA_with_DMD
-from Shine_Lab_Code.Method_Functions import run_Regional_Diversity  # New Regional Diversity function
+from Shine_Lab_Code.Method_Functions import run_Regional_Diversity
+from Shine_Lab_Code.Method_Functions import run_Susceptibility
+from Shine_Lab_Code.Method_Functions import run_Timescale
+from Shine_Lab_Code.Method_Functions import run_BrainConnectivityToolbox
+
+
 
 class Controller:
     def __init__(self):
         self.root = tk.Tk()
-        self.root.withdraw()  # Hide main root until needed
+        self.root.withdraw()  # Hide the main root until needed
 
         self.input_file = None
         self.output_dir = None
         
-        # Flags for selected analyses
+        # Flags for selected analyses (set default True)
         self.run_lfa = True
         self.run_icg = True
         self.run_fft = True
         self.run_energy = True  
-        self.run_lfa_dmd = True   # Flag for LFA with DMD
-        self.run_regional_diversity = True  # Flag for Regional Diversity Analysis
+        self.run_lfa_dmd = True
+        self.run_regional_diversity = True
+        self.run_timescale = True
+        self.run_bct = True
+        
         self.sampling_freq = None
 
     def launch_gui(self):
@@ -68,15 +82,16 @@ class Controller:
         data = mat_data[data_key]  # shape: [areas, time, subjects]
         n_vars, n_time, n_subjs = data.shape
 
-        # --- Run LFA if selected ---
+        # --- Run LFA Analysis if selected ---
         if self.run_lfa:
+            print()
             LFA_result_path = os.path.join(self.output_dir, "LFA")
             os.makedirs(LFA_result_path, exist_ok=True)
             lmse, msd = run_LFA(data, n_lag=3, exp_var_lim=0.95)
             savemat(os.path.join(LFA_result_path, "lmse_results.mat"), {"lmse": lmse})
             savemat(os.path.join(LFA_result_path, "msd_results.mat"), {"msd": msd})
 
-        # --- Run ICG if selected ---
+        # --- Run ICG Analysis if selected ---
         if self.run_icg:
             ICG_result_path = os.path.join(self.output_dir, "ICG")
             os.makedirs(ICG_result_path, exist_ok=True)
@@ -99,7 +114,7 @@ class Controller:
                             {f"pairs_{lvl+1}": lvl_pairs}
                         )
 
-        # --- Run FFT if selected ---
+        # --- Run FFT Analysis if selected ---
         if self.run_fft:
             fs = self.sampling_freq  # Could be None or a float
             fft_path = os.path.join(self.output_dir, "FFT")
@@ -169,7 +184,7 @@ class Controller:
             RD_result_path = os.path.join(self.output_dir, "Regional_Diversity")
             os.makedirs(RD_result_path, exist_ok=True)
             # Our run_Regional_Diversity function expects data as (time, regions, subjects).
-            # Our data is currently (areas, time, subjects); so we transpose the first two dimensions.
+            # Our data is currently (areas, time, subjects); so transpose the first two dimensions.
             data_transposed = np.transpose(data, (1, 0, 2))
             regional_diversity = run_Regional_Diversity(data_transposed)
             savemat(os.path.join(RD_result_path, "regional_diversity.mat"), {"regional_diversity": regional_diversity})
@@ -182,15 +197,15 @@ class Controller:
             plt.savefig(os.path.join(RD_result_path, "regional_diversity.png"))
             plt.close()
 
-        # --- Run LFA with DMD if selected ---
+        # --- Run LFA with DMD Analysis if selected ---
         if self.run_lfa_dmd:
             LFA_DMD_result_path = os.path.join(self.output_dir, "LFA_with_DMD")
             os.makedirs(LFA_DMD_result_path, exist_ok=True)
-            # Using parameters similar to MATLAB: n_lag=15, exp_var_lim=95, delta_t=0.5
+            # Parameters: n_lag=15, exp_var_lim=95, delta_t=0.5
             lmse_dmd, msd_dmd, e_vecs_dmd, lambdas_dmd = run_LFA_with_DMD(data, n_lag=15, exp_var_lim=95, delta_t=0.5)
             savemat(os.path.join(LFA_DMD_result_path, "lmse_dmd_results.mat"), {"lmse_dmd": lmse_dmd})
             savemat(os.path.join(LFA_DMD_result_path, "msd_dmd_results.mat"), {"msd_dmd": msd_dmd})
-            # For lambdas and e_vecs (lists of arrays), create object arrays
+            # For lambdas and e_vecs, create object arrays
             lambdas_obj = np.empty((n_subjs,), dtype=object)
             e_vecs_obj = np.empty((n_subjs,), dtype=object)
             for subj in range(n_subjs):
@@ -199,7 +214,7 @@ class Controller:
             savemat(os.path.join(LFA_DMD_result_path, "lambdas_dmd_results.mat"), {"lambdas_dmd": lambdas_obj})
             savemat(os.path.join(LFA_DMD_result_path, "e_vecs_dmd_results.mat"), {"e_vecs_dmd": e_vecs_obj})
             
-            # Optionally, create an aggregated plot of DMD eigenvalues across subjects:
+            # Create an aggregated plot of DMD eigenvalues across subjects
             plt.figure(figsize=(8, 4))
             for subj in range(n_subjs):
                 eigs = lambdas_dmd[subj]
@@ -212,7 +227,23 @@ class Controller:
             plt.savefig(os.path.join(LFA_DMD_result_path, "aggregated_dmd_eigenvalues.png"))
             plt.close()
 
-        # Show results page
+        # --- Run Timescale Analysis if selected ---
+        if self.run_timescale:
+            timescale_path = os.path.join(self.output_dir, "Timescale")
+            os.makedirs(timescale_path, exist_ok=True)
+            timescales = run_Timescale(data)
+            savemat(os.path.join(timescale_path, "timescales.mat"), {"timescales": timescales})
+            
+        # --- Run Brain Connectivity Toolbox (BCT) Metrics if selected ---
+        if self.run_bct:
+            BCT_result_path = os.path.join(self.output_dir, "BCT_Metrics")
+            os.makedirs(BCT_result_path, exist_ok=True)
+            # Compute BCT metrics on data: expect (time, region, subject)
+            data_bct = np.transpose(data, (1, 0, 2))
+            bct_metrics = run_BrainConnectivityToolbox(data_bct, threshold_prop=0.1, gamma=1.0)
+            savemat(os.path.join(BCT_result_path, "bct_metrics.mat"), bct_metrics)
+
+        # --- End of all methods ---
         msg = f"Analysis completed!\nResults saved to: {self.output_dir}"
         self.show_results_page(msg)
 
@@ -251,19 +282,33 @@ class PageTwoWindow(tk.Toplevel):
         self.controller = controller
         self.title("Step 2: Select Analysis Methods")
         tk.Label(self, text="Select Analysis Methods", font=("Arial", 14)).pack(pady=10)
+        
         self.run_lfa_var = tk.BooleanVar(value=True)
         tk.Checkbutton(self, text="Run LFA Analysis", variable=self.run_lfa_var).pack(pady=5)
+        
         self.run_icg_var = tk.BooleanVar(value=True)
         tk.Checkbutton(self, text="Run ICG Analysis", variable=self.run_icg_var).pack(pady=5)
+        
         self.run_fft_var = tk.BooleanVar(value=True)
         tk.Checkbutton(self, text="Run FFT Analysis", variable=self.run_fft_var).pack(pady=5)
+        
         self.run_energy_var = tk.BooleanVar(value=True)
         tk.Checkbutton(self, text="Run Energy Landscape Analysis", variable=self.run_energy_var).pack(pady=5)
+        
         self.run_lfa_dmd_var = tk.BooleanVar(value=True)
         tk.Checkbutton(self, text="Run LFA with DMD Analysis", variable=self.run_lfa_dmd_var).pack(pady=5)
+        
         self.run_reg_div_var = tk.BooleanVar(value=True)
         tk.Checkbutton(self, text="Run Regional Diversity Analysis", variable=self.run_reg_div_var).pack(pady=5)
-        tk.Label(self, text="Sampling frequency (Hz), leave blank for 1 sample/unit").pack(pady=5)
+        
+        # New checkboxes for Timescale and BCT
+        self.run_timescale_var = tk.BooleanVar(value=True)
+        tk.Checkbutton(self, text="Run Timescale Analysis", variable=self.run_timescale_var).pack(pady=5)
+        
+        self.run_bct_var = tk.BooleanVar(value=True)
+        tk.Checkbutton(self, text="Run Brain Connectivity Toolbox (BCT) Analysis", variable=self.run_bct_var).pack(pady=5)
+        
+        tk.Label(self, text="Sampling frequency (Hz), leave blank for default", font=("Arial", 10)).pack(pady=5)
         self.fs_entry = tk.Entry(self)
         self.fs_entry.pack()
         tk.Button(self, text="Run Analysis", command=self.on_run_clicked).pack(pady=20)
@@ -276,12 +321,14 @@ class PageTwoWindow(tk.Toplevel):
         self.controller.run_energy = self.run_energy_var.get()
         self.controller.run_lfa_dmd = self.run_lfa_dmd_var.get()
         self.controller.run_regional_diversity = self.run_reg_div_var.get()
+        self.controller.run_timescale = self.run_timescale_var.get()
+        self.controller.run_bct = self.run_bct_var.get()
         fs_text = self.fs_entry.get().strip()
         if fs_text:
             try:
                 self.controller.sampling_freq = float(fs_text)
             except ValueError:
-                messagebox.showwarning("Warning", "Invalid sampling frequency. Defaulting to 1.0.")
+                messagebox.showwarning("Warning", "Invalid sampling frequency. Using default.")
                 self.controller.sampling_freq = None
         else:
             self.controller.sampling_freq = None

@@ -129,7 +129,14 @@ def run_ICG(data, correlation_cutoff=0.0, use_absolute=True, n_jobs=-1):
         all_activity_icg (list of list of np.ndarray): ICG results per subject.
         all_out_pair_id (list of list of np.ndarray): ID tracking per subject.
     """
-    n_subjs = data.shape[2]
+    if len(data.shape) == 2:
+        # Assume shape is (variables, timepoints) → just 1 subject
+        data = data[:, :, np.newaxis]
+        n_subjs = 1
+    elif len(data.shape) == 3:
+        n_subjs = data.shape[2]
+    else:
+        raise ValueError(f"Expected data with 2 or 3 dimensions, got shape {data.shape}")
 
     with Parallel(n_jobs=n_jobs, backend="threading") as parallel:
         results = parallel(

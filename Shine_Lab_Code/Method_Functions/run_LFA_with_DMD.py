@@ -10,6 +10,7 @@ def run_LFA_with_DMD(data_ts, n_lag=10, exp_var_lim=99, delta_t=1.0):
         e_vecs (list): Sorted DMD modes
         lambdas (list): Sorted continuous-time DMD eigenvalues (complex)
     """
+    
     n_vars, n_time, n_subjs = data_ts.shape
 
     lmse = np.zeros((n_time - n_lag, n_lag, n_subjs))
@@ -18,17 +19,18 @@ def run_LFA_with_DMD(data_ts, n_lag=10, exp_var_lim=99, delta_t=1.0):
     lambdas = []
 
     for subj in range(n_subjs):
+
         subj_ts = data_ts[:, :, subj]
         X = subj_ts[:, :-1]
         Y = subj_ts[:, 1:]
 
         # SVD of X
         U, S_full, Vt = np.linalg.svd(X, full_matrices=False)
-
+    
         # Truncate based on explained variance
         exp_var = 100 * (S_full ** 2) / np.sum(S_full ** 2)
         accum_exp_var = np.cumsum(exp_var)
-        pcs_mask = accum_exp_var > exp_var_lim
+        pcs_mask = accum_exp_var >= exp_var_lim
         n_pcs = np.where(pcs_mask)[0][0] + 1 if np.any(pcs_mask) else len(S_full)
 
         U_r = U[:, :n_pcs]
@@ -38,7 +40,7 @@ def run_LFA_with_DMD(data_ts, n_lag=10, exp_var_lim=99, delta_t=1.0):
         X_svd = V @ S_r  # time x n_pcs
 
         # Estimate linear propagator
-        A_tilde = U_r.T @ Y @ V @ np.linalg.inv(S_r)
+        A_tilde = U_r.T @ Y @ V @ np.linalg.pinv(S_r, rcond=1e-15)
 
         # Eigen-decomposition of A_tilde
         eigvals, eigvecs = np.linalg.eig(A_tilde)
@@ -47,7 +49,7 @@ def run_LFA_with_DMD(data_ts, n_lag=10, exp_var_lim=99, delta_t=1.0):
         lambda_cont = (np.log(np.abs(eigvals)) + 1j * np.angle(eigvals)) / delta_t
 
         # Compute DMD modes
-        mode_matrix = Y @ V @ np.linalg.inv(S_r) @ eigvecs
+        mode_matrix = Y @ V @ np.linalg.pinv(S_r, rcond=1e-15) @ eigvecs
 
         # Sort everything by |eigenvalue| (modulus)
         sort_idx = np.argsort(-np.abs(eigvals))  # descending
