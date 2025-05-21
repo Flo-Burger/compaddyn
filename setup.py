@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="shine_lab_code",
+    name="compaddyn",
     version="0.1.0",
     author="Florian Burger",
     author_email="fburger20@gmx.de",
